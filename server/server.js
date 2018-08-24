@@ -16,30 +16,30 @@ app.use(express.static(publicPath));
 io.on("connection", socket => {
   console.log("New User Connected");
 
+  // socket.emit(
+  //   "newMessage",
+  //   utils.generateMessage("mike@example.com", "Hey, what is going on?")
+  // );
+
   socket.emit(
     "newMessage",
-    utils.generateMessage("mike@example.com", "Hey, what is going on?")
+    utils.generateMessage("Admin", "Welcome to chat App")
   );
 
-  socket.on("createMessage", newMessage => {
+  socket.broadcast.emit(
+    "newMessage",
+    utils.generateMessage("Admin", "New user joined")
+  );
+
+  socket.on("createMessage", (newMessage, callback) => {
     console.log("createMessage", newMessage);
-    //emit from admin text chat app
-    //broadcast.emit from admin text new User joined
-
-    socket.emit(
-      "newMessage",
-      utils.generateMessage("admin", "welcome to chat App")
-    );
-
-    socket.broadcast.emit(
-      "newMessage",
-      utils.generateMessage("admin", "new user joined")
-    );
 
     io.emit(
       "newMessage",
       utils.generateMessage(newMessage.from, newMessage.text)
     );
+
+    callback("From the server");
   });
   // socket.broadcast.emit('newMessage', {
   //   from: newMessage.from,
