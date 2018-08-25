@@ -42,13 +42,10 @@ io.on("connection", socket => {
     callback("From the server");
   });
 
-  socket.on("createLocationMessage", location => {
+  socket.on("createLocationMessage", coords => {
     io.emit(
-      "newMessage",
-      utils.generateMessage(
-        "Admin",
-        `${location.latitude} ${location.longitude}`
-      )
+      "newLocationMessage",
+      utils.generateLocationMessage("Admin", coords.latitude, coords.longitude)
     );
   });
   // socket.broadcast.emit('newMessage', {
