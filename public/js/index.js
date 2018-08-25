@@ -9,10 +9,9 @@ socket.on("disconnect", function() {
 });
 
 socket.on("newMessage", function(message) {
-  console.log("New message", message);
-
+  var formattedTime = moment(message.createdAt).format("h:mm a");
   let li = jQuery("<li></li>");
-  li.text(`${message.from}: ${message.text}`);
+  li.text(`${message.from}: ${message.text} ${formattedTime}`);
   $("#messages").append(li);
 });
 
@@ -35,7 +34,7 @@ $("#message-form").submit(function(event) {
       from: "User",
       text: messageTextbox.val()
     },
-    function(data) {
+    function() {
       messageTextbox.val();
     }
   );

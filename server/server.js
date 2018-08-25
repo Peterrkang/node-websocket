@@ -16,11 +16,6 @@ app.use(express.static(publicPath));
 io.on("connection", socket => {
   console.log("New User Connected");
 
-  // socket.emit(
-  //   "newMessage",
-  //   utils.generateMessage("mike@example.com", "Hey, what is going on?")
-  // );
-
   socket.emit(
     "newMessage",
     utils.generateMessage("Admin", "Welcome to chat App")
@@ -48,11 +43,6 @@ io.on("connection", socket => {
       utils.generateLocationMessage("Admin", coords.latitude, coords.longitude)
     );
   });
-  // socket.broadcast.emit('newMessage', {
-  //   from: newMessage.from,
-  //   text: newMessage.text,
-  //   createdAt: new Date().getTime()
-  // });
 
   socket.on("disconnect", () => {
     console.log("Client Disconnected");
