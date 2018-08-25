@@ -2,11 +2,6 @@ var socket = io();
 
 socket.on("connect", function() {
   console.log("Connected to server");
-
-  // socket.emit("createEmail", {
-  //   to: "jen@example.com",
-  //   text: "Hey, this is Peter"
-  // });
 });
 
 socket.on("disconnect", function() {
@@ -33,14 +28,15 @@ socket.on("newLocationMessage", function(message) {
 $("#message-form").submit(function(event) {
   event.preventDefault();
 
+  var messageTextbox = jQuery("[name=message]");
   socket.emit(
     "createMessage",
     {
       from: "User",
-      text: this.message.value
+      text: messageTextbox.val()
     },
     function(data) {
-      console.log("Got it", data);
+      messageTextbox.val();
     }
   );
 
@@ -48,11 +44,14 @@ $("#message-form").submit(function(event) {
 });
 
 $("#send-location").click(function(event) {
+  const location = $("#send-location");
   if (!navigator.geolocation) {
     return alert("Geolocation not support by your browser");
   }
+  location.attr("disabled", "disabled").text("Sending location...");
   navigator.geolocation.getCurrentPosition(
     function(position) {
+      location.removeAttr("disabled").text("Send Location");
       socket.emit("createLocationMessage", {
         latitude: position.coords.latitude,
         longitude: position.coords.longitude
