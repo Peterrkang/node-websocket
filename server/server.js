@@ -4,7 +4,7 @@ const path = require("path");
 const socketIO = require("socket.io");
 
 const publicPath = path.join(__dirname, "../public");
-const utils = require("./utils/message");
+const { generateMessage, generateLocationMessage } = require("./utils/message");
 const { isRealString } = require("./utils/validation");
 const { Users } = require("./utils/users");
 
@@ -31,36 +31,36 @@ io.on("connection", socket => {
 
     io.to(params.room).emit("updateUserList", users.getUserList(params.room));
 
-    socket.emit(
-      "newMessage",
-      utils.generateMessage("Admin", "Welcome to chat App")
-    );
+    socket.emit("newMessage", generateMessage("Admin", "Welcome to chat App"));
     socket.broadcast
       .to(params.room)
       .emit(
         "newMessage",
-        utils.generateMessage("Admin", `${params.name} has joined`)
+        generateMessage("Admin", `${params.name} has joined`)
       );
 
     callback();
   });
 
-  socket.on("createMessage", (newMessage, callback) => {
-    console.log("createMessage", newMessage);
-
-    io.emit(
-      "newMessage",
-      utils.generateMessage(newMessage.from, newMessage.text)
-    );
-
+  socket.on("createMessage", (message, callback) => {
+    var user = users.getUser(socket.id);
+    if (user && isRealString(message.text)) {
+      io.to(user.room).emit(
+        "newMessage",
+        generateMessage(user.name, message.text)
+      );
+    }
     callback();
   });
 
   socket.on("createLocationMessage", coords => {
-    io.emit(
-      "newLocationMessage",
-      utils.generateLocationMessage("Admin", coords.latitude, coords.longitude)
-    );
+    var user = users.getUser(socket.id);
+    if (user) {
+      io.emit(
+        "newLocationMessage",
+        generateLocationMessage(user.name, coords.latitude, coords.longitude)
+      );
+    }
   });
 
   socket.on("disconnect", () => {
@@ -69,7 +69,7 @@ io.on("connection", socket => {
       io.to(user.room).emit("updateUserList", users.getUserList(user.room));
       io.to(user.room).emit(
         "newMessage",
-        utils.generateMessage("Admin", `${user.name} has left`)
+        generateMessage("Admin", `${user.name} has left`)
       );
     }
   });
